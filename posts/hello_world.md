@@ -1,8 +1,6 @@
 ---
 title: Hello World!
-tags:
-  - test
-  - hello world
+tags: [ "test", "hello_world" ]
 ---
 
 # Hello World!
