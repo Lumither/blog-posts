@@ -1,6 +1,7 @@
 ---
 title: Hello World!
 date: 2024-04-30+08:00
+id: 8ca3fa2b-f040-448c-8885-81aab56db9bb
 tags: [ "test", "hello world" ]
 ---
 
