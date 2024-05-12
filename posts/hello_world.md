@@ -1,6 +1,8 @@
 ---
 title: Hello World!
 date: 2024-04-30+0800
+category: 碎碎念
+header_img: https://oss.lumither.com/blog/pictures/headers/Lattern.jpg
 id: 8ca3fa2b-f040-448c-8885-81aab56db9bb
 sub_title: 梦开始的地方
 tags: [ "test", "hello world" ]
