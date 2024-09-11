@@ -2,7 +2,6 @@
 title: 关于在Linux上安装ComfyUI的那档事
 date: 2024-08-20+0800
 category: 记录
-header_img: https://oss.lumither.com/blog/pictures/gothic_kiriyama_lolita.webp
 id: 5b029257-0ca0-42e5-a04d-0ce84d11d724
 sub_title: 记录一下
 summary: 略
