@@ -52,8 +52,3 @@ tags: [ "博客建设", "优化", "日常", "长期更新" ]
 - [`PostgreSQL`](https://www.postgresql.org/)：我也不知道我为什么要采用她，以后找找看（？
 - [`axum`](https://github.com/tokio-rs/axum)：`tokio`团队出品的Rust网络框架
 - 还有好多的还没写出来，以后更新（咕
-
-## 企划的规模？
-虽然说是一个博客网站，实际上慢慢好像...
-
-<待续>
