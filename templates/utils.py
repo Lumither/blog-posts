@@ -1,6 +1,5 @@
-from abc import ABC, abstractmethod
 import os
-from pathlib import Path
+from abc import ABC, abstractmethod
 from typing import Dict, Optional
 
 
@@ -15,3 +14,4 @@ def create_all_files(relative_work_path: str, items: Dict[str, Optional[str]]):
     for item in items:
         if item.endswith("/"):
             print(absolute_path + item)
+    # todo: create files

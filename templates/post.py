@@ -54,6 +54,7 @@ def get_published_date():
 
 
 def get_tags():
+    # todo: multi tags support
     return input_autocompletion("tags > ", get_tags_cache(), fuzzy_pinyin_matcher)
 
 
