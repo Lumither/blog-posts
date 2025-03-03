@@ -5,11 +5,15 @@ import argparse
 import rich
 
 from templates.post import BlogPost
+from utils.cache import init_cache
+from utils.index import build_post_idx
 
 
 def main():
     # if args.new:
     #     new_post()
+    init_cache()
+    build_post_idx()
     bp = BlogPost()
     bp.init()
 
