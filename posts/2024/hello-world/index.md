@@ -1,6 +1,6 @@
 ---
 title: Hello World!
-date: 2024-04-30+0800
+date: 2024-04-30
 category: 碎碎念
 header_img: https://oss.lumither.com/blog/pictures/Lattern.webp
 id: 8ca3fa2b-f040-448c-8885-81aab56db9bb

@@ -1,6 +1,6 @@
 ---
 title: 功能测试章节
-date: 2024-04-29+0800
+date: 2024-04-29
 category: 测试
 header_img: https://oss.lumither.com/blog/pictures/gothic_kiriyama_lolita.webp
 id: 9dcf707d-625c-4229-84db-6523d1ae1c4b
