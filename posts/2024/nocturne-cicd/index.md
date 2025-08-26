@@ -1,11 +1,11 @@
 ---
 title: 关于博客系统二三事（二）：自动化部署
-date: 2024-12-5-0800
-last_update: 2025-2-20-0800
+date: 2024-12-05
+update: 2025-2-20
 category: 博客建设
 # header_img: https://oss.lumither.com/blog/pictures/gothic_kiriyama_lolita.webp
 id: a5df0869-879b-45a2-94b4-7eea0e294c8f
-sub_title: 每一次版本大更新的时候都要手动部署，实在是太麻烦了，不如让它自动化吧（笑）
+subtitle: 每一次版本大更新的时候都要手动部署，实在是太麻烦了，不如让它自动化吧（笑）
 tags: [ "博客建设", "日常", "Docker", "Docker Compose" ]
 ---
 

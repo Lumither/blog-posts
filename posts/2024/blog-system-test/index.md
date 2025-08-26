@@ -1,34 +1,27 @@
 ---
 title: 功能测试章节
-date: 2024-04-29+0800
+date: 2024-04-29
 category: 测试
 header_img: https://oss.lumither.com/blog/pictures/gothic_kiriyama_lolita.webp
 id: 9dcf707d-625c-4229-84db-6523d1ae1c4b
-sub_title: 这是一篇测试文档
+subtitle: 这是一篇测试文档
 summary: 这是一篇测试文档，调试专用，最新的feature在这里展现（笑
 tags: [ "测试", "System Check" ]
 ---
 
 
-*   [Overview](#overview)
-    *   [Philosophy](#philosophy)
-    *   [Inline HTML](#html)
-    *   [Automatic Escaping for Special Characters](#autoescape)
-*   [Block Elements](#block)
-    *   [Paragraphs and Line Breaks](#p)
-    *   [Headers](#header)
-    *   [Blockquotes](#blockquote)
-    *   [Lists](#list)
-    *   [Code Blocks](#precode)
-    *   [Horizontal Rules](#hr)
-*   [Span Elements](#span)
-    *   [Links](#link)
-    *   [Emphasis](#em)
-    *   [Code](#code)
-    *   [Images](#img)
-*   [Miscellaneous](#misc)
-    *   [Backslash Escapes](#backslash)
-    *   [Automatic Links](#autolink)
+- [Overview](#overview)
+  - [Philosophy](#philosophy)
+- [Block Elements](#block-elements)
+  - [Paragraphs and Line Breaks](#paragraphs-and-line-breaks)
+  - [Headers](#headers)
+  - [Blockquotes](#blockquotes)
+  - [Lists](#lists)
+  - [Code Blocks](#code-blocks)
+- [Span Elements](#span-elements)
+  - [Links](#links)
+  - [Emphasis](#emphasis)
+  - [Code](#code)
 
 
 **Note:** This document is itself written using Markdown; you
