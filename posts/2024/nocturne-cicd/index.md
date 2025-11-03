@@ -301,7 +301,7 @@ docker compose -f prod.compose.yaml up
 
 时间又向后拨几个月（~~8个月，拖延病没救了（确信~~），终于拿出了一版可以用的方案。
 
-首先，隆重介绍 `cr.lmt.moe`，一个 `Harbor` 实例，说白了就是 self-host 了一个 container registry，跑在家里的 pve 上面，由 cloudflare tunnel 将服务暴露。当然，也可以使用 github 的 cr 服务，如果没记错的话对公开仓库是无限量免费的，使用上也不会有什么区别，至少都是符合 OCI 标准的（当然，也许微软的服务器可能会快点？），所以关于 `Harbor` 相关的处理不会在这里提及，也许以后我会来说说。
+首先，隆重介绍 `cr.lmt.moe`，一个 `Harbor` 实例，说白了就是 self-host 了一个 container registry，跑在家里的 pve 上面，由 cloudflare tunnel 将服务暴露（不过目前在 push image 时有概率会 HTTP 524 导致的上传失败，具体原因还没找出来，也许以后会换掉这个方案）。当然，也可以使用 github 的 cr 服务，如果没记错的话对公开仓库是无限量免费的，使用上也不会有什么区别，至少都是符合 OCI 标准的（当然，也许微软的服务器可能会快点？），所以关于 `Harbor` 相关的处理不会在这里提及，也许以后我会来说说。
 
 方案很简单，github action 自动构建容器，然后 push 到 rc 上，再由自己的服务器去拉取运行。目前的 workflow 大概是这个样子的：
 
@@ -373,7 +373,8 @@ jobs:
 ```
 
 稍微注意的就是可以通过跳过 pull 下来的 image 来减小不必要的传输。`Makefile` 的定义是这个样子的：
-```Makefile
+
+```makefile
 ARCH := $(shell uname -m)
 ifeq ($(ARCH), arm64)
     ARCH := aarch64
@@ -481,7 +482,7 @@ services:
 
 相比之前的版本多一个 `migrate` 容器，用来初始化数据库，修复了之前在数据库启动失败的时候后端无限重启导致服务不可用的问题。同时将 port binding 的部分增加了对所有流量的监听，而不是只处理本机流量。
 
-至此，自动构建完成了，然后就是自动更新运行的容器的部分。
+至此，自动构建完成了，然后就是自动更新运行的容器的部分。<待续>
 
 
 [^1]: <https://superuser.com/a/1820423/2021323>
