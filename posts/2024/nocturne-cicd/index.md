@@ -1,7 +1,7 @@
 ---
 title: 关于博客系统二三事（二）：自动化部署
 date: 2024-12-05
-update: 2025-2-20
+update: 2025-11-03
 category: 博客建设
 # header_img: https://oss.lumither.com/blog/pictures/gothic_kiriyama_lolita.webp
 id: a5df0869-879b-45a2-94b4-7eea0e294c8f
@@ -14,9 +14,6 @@ tags: [ "博客建设", "日常", "Docker", "Docker Compose" ]
 当然，由于这篇文章并不是一次性写完的，比如说第一次落笔的日期是2024年12月5日，第二次完善（或者说完成？）的时间已经来到了25年的2月20日，所以说可能阅读体验会有所割裂 ~~（什么，你问中间那段时间干什么去了？问就是摸鱼去了（笑））~~，我会努力将逻辑调整清楚的。
 
 ## Docker，启动！
-
-> [!NOTE]
-> 初次书写时的方案并不是最终的解决方案，相比之下后者移除了 `docker compose` 的使用，转而采用了一个类似网关之类的机制，从而实现一定程度上的不停机的自动更新，我将会在后面解释这一变化。
 
 项目组成非常简单，三个部分，前端，后端，数据库。为了方便维护（个人喜好），我将 `compose.yaml` 分割了一下，大致结构展示如下：
 
@@ -302,9 +299,190 @@ docker compose -f prod.compose.yaml up
 
 ## CI/CD
 
-~~<正在研究方案中...>~~ *时间又向后拨几个月
+时间又向后拨几个月（~~8个月，拖延病没救了（确信~~），终于拿出了一版可以用的方案。
 
-从结果上来看
+首先，隆重介绍 `cr.lmt.moe`，一个 `Harbor` 实例，说白了就是 self-host 了一个 container registry，跑在家里的 pve 上面，由 cloudflare tunnel 将服务暴露。当然，也可以使用 github 的 cr 服务，如果没记错的话对公开仓库是无限量免费的，使用上也不会有什么区别，至少都是符合 OCI 标准的（当然，也许微软的服务器可能会快点？），所以关于 `Harbor` 相关的处理不会在这里提及，也许以后我会来说说。
+
+方案很简单，github action 自动构建容器，然后 push 到 rc 上，再由自己的服务器去拉取运行。目前的 workflow 大概是这个样子的：
+
+```yaml
+name: build release nocturne image
+on:
+  push:
+    branches:
+      - release
+
+env:
+  REGISTRY: cr.lmt.moe
+  TAG: release
+  PROJECT: nocturne
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup builder
+        uses: docker/setup-buildx-action@v3
+
+      - name: registry login
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: build containers
+        run: |
+          make build
+
+      - name: tag and push
+        run: |
+          PROJECT_NAME=$(basename "$PWD")
+
+          ALL_IMAGES=$(docker compose -f prod.compose.yaml config --services 2>/dev/null)
+          PULLED_IMAGES=$(docker compose -f prod.compose.yaml config 2>/dev/null \
+                          | awk '/image:/ {print $2}' \
+                          | sort -u \
+                          | sed 's/:.*//' \
+          )
+          TO_PUSH=$(comm -23 \
+            <(echo "$ALL_IMAGES" | sort) \
+            <(echo "$PULLED_IMAGES") \
+          )
+          
+          FMT_STRING=$(echo "$TO_PUSH" | xargs printf '%s, ' | sed 's/, $//')
+          echo "services to push: $FMT_STRING"
+          
+          for SERVICE in $TO_PUSH; do
+            LOCAL_TAG="${PROJECT_NAME}-${SERVICE}:latest"
+            REMOTE_TAG="${REGISTRY}/${PROJECT}/${SERVICE}:${TAG}"
+          
+            if docker image inspect "$LOCAL_TAG" >/dev/null 2>&1; then
+              echo "Pushing $REMOTE_TAG"
+              docker tag "$LOCAL_TAG" "$REMOTE_TAG"
+              docker push "$REMOTE_TAG"
+            else
+              echo "warn: image $LOCAL_TAG not found, skipping $SERVICE"
+            fi
+          
+          done
+```
+
+稍微注意的就是可以通过跳过 pull 下来的 image 来减小不必要的传输。`Makefile` 的定义是这个样子的：
+```Makefile
+ARCH := $(shell uname -m)
+ifeq ($(ARCH), arm64)
+    ARCH := aarch64
+endif
+
+ifneq (,$(wildcard ./.env))
+    include ./.env
+    export
+endif
+ifneq (,$(wildcard ./.env.local))
+    include ./.env.local
+    export
+endif
+
+USE_CR ?= false
+CHANNEL ?= release
+ifeq ($(USE_CR), true)
+    COMPOSE_FILE := prod.cr.compose.yaml
+else
+    COMPOSE_FILE := prod.compose.yaml
+endif
+
+DOCKER_ENV := ARCH=$(ARCH) TAG=$(CHANNEL)
+DOCKER_COMPOSE := $(DOCKER_ENV) docker compose -f $(COMPOSE_FILE)
+
+.PHONY: all
+all:up
+
+.PHONY: build
+build:
+	$(DOCKER_COMPOSE) pull
+	$(DOCKER_COMPOSE) build
+
+.PHONY: up
+up:
+	$(DOCKER_COMPOSE) up -d
+
+.PHONY: down
+down:
+	$(DOCKER_COMPOSE) down
+
+.PHONY: clean
+clean:
+	$(DOCKER_COMPOSE) down --rmi all --volumes
+```
+
+相比之前我们会多一个对 `USE_CR`, `CHANNEL` 环境变量的检测，如果前者为 true，那么将使用拉取 cr 版本的 compose file，反之将使用本地构建的版本，`CHANNEL` 是用来表示版本的，考虑到我会有 `canary` 和 `release` 两种通道，虽然当下并没有什么区别。然后下面的是 cr 版本的 compose file：
+
+```yaml
+services:
+  frontend:
+    depends_on:
+      - backend
+    image: cr.lmt.moe/nocturne/frontend:${TAG}
+    restart: always
+    ports:
+      - "0.0.0.0:3000:3000"
+    env_file:
+      - ./.env
+
+
+  backend:
+    depends_on:
+      - migrate
+    image: cr.lmt.moe/nocturne/backend:${TAG}
+    restart: always
+    ports:
+      - "0.0.0.0:3001:3001"
+    env_file:
+      - ./.env
+      - ./.env.local
+    dns:
+      - 1.1.1.1
+
+
+  migrate:
+    image: postgres:17
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ./.env
+      - ./.env.local
+    volumes:
+      - ./migration/ddl:/migrations:ro
+      - ./migration/migration.sh:/migration.sh:ro
+    entrypoint: [ "/bin/sh", "/migration.sh" ]
+
+
+  postgres:
+    image: postgres:17
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./.env
+      - ./.env.local
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    restart: always
+```
+
+相比之前的版本多一个 `migrate` 容器，用来初始化数据库，修复了之前在数据库启动失败的时候后端无限重启导致服务不可用的问题。同时将 port binding 的部分增加了对所有流量的监听，而不是只处理本机流量。
+
+至此，自动构建完成了，然后就是自动更新运行的容器的部分。
+
 
 [^1]: <https://superuser.com/a/1820423/2021323>
 [^2]: <https://en.wikipedia.org/wiki/Uname#Examples>
