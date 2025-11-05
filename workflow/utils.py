@@ -1,6 +1,7 @@
 import hashlib
 from pathlib import Path
-from urllib.parse import quote
+
+import base58
 
 from config import POST_PATH
 
@@ -31,14 +32,14 @@ def hash_file(path: Path, block_size: int = 65536) -> str:
 def post_rpath_str(abs_path: Path) -> str:
     assert abs_path.is_absolute()
     relative_path = abs_path.relative_to(POST_PATH)
-    year_striped = Path(*relative_path.parts[1:])
-    return year_striped.as_posix()
+    cleaned_path = Path(relative_path.parts[1]) / Path(relative_path.parts[-1])
+    return cleaned_path.as_posix()
 
 
 def encode_media_fname(identifier: str, postfix: str | None, ext: str | None) -> str:
-    filename = identifier
+    filename = base58.b58encode(identifier.encode("utf-8")).decode("ascii")
     if postfix is not None:
-        filename += f"+{postfix}"
+        filename += f"_{postfix}"
     if ext is not None:
         filename += f".{ext}"
-    return quote(filename, safe="")
+    return filename

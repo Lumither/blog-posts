@@ -102,25 +102,29 @@ def img_workflow(image: Path,
 
         imgs: list[str] = []
 
-        def build_path(id_str: str, p_fix: str | None = None, ext: str | None = None) -> Path:
+        def build_path(id_str: str, p_fix: str | None = None, ext: str | None = None, id_only=False) -> Path:
+            path = MEDIA_PATH / id_str
+            path.parent.mkdir(parents=True, exist_ok=True)
+            if id_only:
+                return path
             return MEDIA_PATH / encode_media_fname(id_str, p_fix, ext)
 
         for postfix, scale in variants.items():
             img_v = downscale_img(img_c, scale)
             img_v_path = build_path(identifier, postfix, img_ext)
-            imgs.append(img_v_path.as_posix())
+            imgs.append(img_v_path.relative_to(MEDIA_PATH).as_posix())
 
             log.info(f"writing {postfix} variant as {img_v_path}")
             write_img(img_v, img_v_path)
 
         img_blr = blur_img(downscale_img(img_c, 0.5))
         img_blr_path = build_path(identifier, "b", img_ext)
-        imgs.append(img_blr_path.as_posix())
+        imgs.append(img_blr_path.relative_to(MEDIA_PATH).as_posix())
         log.info(f"writing b variant as {img_blr_path}")
         write_img(img_blr, img_blr_path)
 
-        img_o_path = build_path(identifier)
-        imgs.append(img_o_path.as_posix())
+        img_o_path = build_path(identifier, id_only=True)
+        imgs.append(img_o_path.relative_to(MEDIA_PATH).as_posix())
         log.info(f"writing original as {img_o_path}")
         write_img(img, img_o_path)
 
