@@ -109,7 +109,7 @@ StarFive [官方提供了 debian 的映像](https://debian.starfivetech.com/)，
 
 4. 重启 VisionFive 2 以应用更新
 
-至此，固件更新完成。
+至此，固件更新完成。<待续>
 
 > [!NOTE]
 > 为了不在奇怪的地方出问题，我在这里把工作挪进了 Linux 虚拟机。不过似乎出现了一个衍生需求：由于 `multipass` 暂时不支持将 USB 设备挂载进虚拟机里，而我们可能需要在虚拟机里通过串口访问 VisionFive 2。
