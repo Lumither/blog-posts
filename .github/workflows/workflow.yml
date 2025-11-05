@@ -44,6 +44,4 @@ jobs:
           publish_branch: dist
           force_orphan: true
           keep_files: false
-
-
-
+          disable_nojekyll: true
