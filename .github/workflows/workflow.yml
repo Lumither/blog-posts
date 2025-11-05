@@ -27,7 +27,7 @@ jobs:
       - name: Copy dist to master
         run: |
           mkdir -p master/dist
-          cp -r dist/* master/dist
+          cp -r dist/* master/dist || true
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
