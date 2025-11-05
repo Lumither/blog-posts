@@ -1,0 +1,21 @@
+name: Workflow
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-dist:
+    name: Build dist
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Build dist
+        run: make
+
+
