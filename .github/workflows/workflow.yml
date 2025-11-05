@@ -10,12 +10,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout master
+        uses: actions/checkout@v5
+        with:
+          path: master
+
+      - name: Checkout dist
+        uses: actions/checkout@v5
+        with:
+          ref: dist
+          path: dist
+
+      - name: Copy dist to master
+        run: |
+          mkdir -p master/dist
+          cp dist/* master/dist
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
 
       - name: Build dist
+        working-directory: master
         run: make
+
+      - name: Push dist
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./master/dist
+          publish_branch: dist
+          force_orphan: true
+          keep_files: false
+
 
 
