@@ -6,6 +6,9 @@ on:
 
 jobs:
   build-dist:
+    permissions:
+      contents: write
+
     name: Build dist
     runs-on: ubuntu-latest
 
